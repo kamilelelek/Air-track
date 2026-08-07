@@ -1,0 +1,18 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Maven / Java build output
+target/
+*.class
+
+# Node / frontend build output
+node_modules/
+dist/
+build/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
