@@ -1,6 +1,7 @@
 package org.example.collectorseervice.client;
 
-import org.example.collectorseervice.dto.OpenAqDto;
+import org.example.collectorseervice.dto.latest.LatestReadingDto;
+import org.example.collectorseervice.dto.locations.LocationDto;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
@@ -14,19 +15,34 @@ public class OpenAqClient {
         this.openAqConfig = openAqConfig;
     }
 
-    public List<OpenAqDto> getResponse() {
-        OpenAqResponse response;
+    public List<LocationDto> getLocationResponse() {
+        LocationsResponse response;
         try {
             response = openAqConfig.openAqWebClient().get()
-                    .uri("/countries/42")
+                    .uri("/locations?iso=PL")
                     .retrieve()
-                    .body(OpenAqResponse.class);
+                    .body(LocationsResponse.class);
         } catch (RestClientException e) {
-            throw new IllegalArgumentException("Nie udało się pobrać danych z Open AQ API", e);
+            throw new ExternalApiException("Nie udało się pobrać danych z Open AQ API", e);
         }
 
         if (response == null || response.results() == null) {
-            throw new IllegalArgumentException("Open Aq API zwróciło pustą odpowiedź");
+            throw new ExternalApiException("Open Aq API zwróciło pustą odpowiedź");
+        }
+        return response.results();
+    }
+    public List<LatestReadingDto> getLatestResponse(LocationDto location) {
+        LatestResponse response;
+        try{
+            response= openAqConfig.openAqWebClient().get()
+                    .uri("/locations/"+ location.id()+"/latest")
+                    .retrieve()
+                    .body(LatestResponse.class);
+        }catch(RestClientException e){
+            throw new ExternalApiException("Nie udało się pobrać danych z Open AQ API",e);
+        }
+        if (response == null || response.results() == null) {
+            throw new ExternalApiException("Open Aq API zwróciło pustą odpowiedź");
         }
         return response.results();
     }

@@ -1,9 +1,9 @@
 package org.example.collectorseervice.service;
 
-import org.example.collectorseervice.dto.CoordinatesDto;
-import org.example.collectorseervice.dto.CountryDto;
-import org.example.collectorseervice.dto.MeasurementReadingDto;
-import org.example.collectorseervice.dto.OpenAqDto;
+import org.example.collectorseervice.dto.locations.CoordinatesDto;
+import org.example.collectorseervice.dto.locations.CountryDto;
+import org.example.collectorseervice.dto.latest.MeasurementDto;
+import org.example.collectorseervice.dto.locations.LocationDto;
 import org.example.collectorseervice.model.Station;
 import org.example.collectorseervice.repository.MeasurementRepository;
 import org.example.collectorseervice.repository.StationRepository;
@@ -35,12 +35,12 @@ class StationServiceTest {
     @InjectMocks
     private StationService stationService;
 
-    private OpenAqDto openAqDto;
-    private MeasurementReadingDto reading;
+    private LocationDto locationDto;
+    private MeasurementDto reading;
 
     @BeforeEach
     void setUp() {
-        openAqDto = new OpenAqDto(
+        locationDto = new LocationDto(
                 1L,
                 "Brzozowka-Zielona Droga",
                 "Brzozowka",
@@ -49,15 +49,15 @@ class StationServiceTest {
                 List.of()
         );
 
-        reading = new MeasurementReadingDto("pm25", 18.5, "µg/m3", LocalDateTime.now());
+        reading = new MeasurementDto("pm25", 18.5, "µg/m3", LocalDateTime.now());
     }
 
     @Test
     void shouldCreateNewStationWhenItDoesNotExistYet() {
-        when(stationRepository.findByExternalId(openAqDto.id())).thenReturn(Optional.empty());
+        when(stationRepository.findByExternalId(locationDto.id())).thenReturn(Optional.empty());
         when(stationRepository.save(any(Station.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Station result = stationService.saveStationWithMeasurements(openAqDto, List.of(reading));
+        Station result = stationService.saveStationWithMeasurements(locationDto, List.of(reading));
 
         assertEquals("Brzozowka-Zielona Droga", result.getName());
         assertEquals(1, result.getMeasurements().size());
@@ -67,14 +67,14 @@ class StationServiceTest {
     void shouldReuseExistingStationInsteadOfCreatingNewOne() {
         Station existingStation = Station.builder()
                 .id(5L)
-                .externalId(openAqDto.id())
+                .externalId(locationDto.id())
                 .name("Brzozowka-Zielona Droga")
                 .build();
 
-        when(stationRepository.findByExternalId(openAqDto.id())).thenReturn(Optional.of(existingStation));
+        when(stationRepository.findByExternalId(locationDto.id())).thenReturn(Optional.of(existingStation));
         when(stationRepository.save(any(Station.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Station result = stationService.saveStationWithMeasurements(openAqDto, List.of(reading));
+        Station result = stationService.saveStationWithMeasurements(locationDto, List.of(reading));
 
         assertEquals(5L, result.getId());
         assertEquals(1, result.getMeasurements().size());
@@ -84,16 +84,16 @@ class StationServiceTest {
     void shouldSkipMeasurementThatIsAlreadySavedForStation() {
         Station existingStation = Station.builder()
                 .id(5L)
-                .externalId(openAqDto.id())
+                .externalId(locationDto.id())
                 .name("Brzozowka-Zielona Droga")
                 .build();
 
-        when(stationRepository.findByExternalId(openAqDto.id())).thenReturn(Optional.of(existingStation));
+        when(stationRepository.findByExternalId(locationDto.id())).thenReturn(Optional.of(existingStation));
         when(measurementRepository.existsByStationIdAndParameterAndMeasuredAt(
                 5L, reading.parameter(), reading.measuredAt())).thenReturn(true);
         when(stationRepository.save(any(Station.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Station result = stationService.saveStationWithMeasurements(openAqDto, List.of(reading));
+        Station result = stationService.saveStationWithMeasurements(locationDto, List.of(reading));
 
         assertTrue(result.getMeasurements().isEmpty());
     }
