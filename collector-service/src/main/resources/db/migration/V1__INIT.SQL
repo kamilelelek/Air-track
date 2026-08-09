@@ -1,6 +1,6 @@
 CREATE TABLE stations (
                           id          BIGSERIAL PRIMARY KEY,
-                          external_id VARCHAR(50) UNIQUE NOT NULL,
+                          external_id BIGINT UNIQUE NOT NULL,
                           name        VARCHAR(255),
                           city        VARCHAR(100),
                           country     VARCHAR(50),

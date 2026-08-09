@@ -1,4 +1,4 @@
-package org.example.collectorseervice.response;
+package org.example.collectorseervice.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.example.collectorseervice.dto.OpenAqDto;

@@ -21,6 +21,7 @@ public class StationService {
         this.stationRepository = stationRepository;
         this.measurementRepository = measurementRepository;
     }
+
     @Transactional
     public Station saveStationWithMeasurements(OpenAqDto openAqDto, List<MeasurementReadingDto> measurements) {
         Station station = findOrCreateStation(openAqDto);
