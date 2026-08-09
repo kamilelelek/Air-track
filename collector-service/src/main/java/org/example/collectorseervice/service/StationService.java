@@ -1,8 +1,8 @@
 package org.example.collectorseervice.service;
 
 import jakarta.transaction.Transactional;
-import org.example.collectorseervice.dto.MeasurementReadingDto;
-import org.example.collectorseervice.dto.OpenAqDto;
+import org.example.collectorseervice.dto.latest.MeasurementDto;
+import org.example.collectorseervice.dto.locations.LocationDto;
 import org.example.collectorseervice.model.Measurement;
 import org.example.collectorseervice.model.Station;
 import org.example.collectorseervice.repository.MeasurementRepository;
@@ -23,8 +23,8 @@ public class StationService {
     }
 
     @Transactional
-    public Station saveStationWithMeasurements(OpenAqDto openAqDto, List<MeasurementReadingDto> measurements) {
-        Station station = findOrCreateStation(openAqDto);
+    public Station saveStationWithMeasurements(LocationDto locationDto, List<MeasurementDto> measurements) {
+        Station station = findOrCreateStation(locationDto);
 
         List<Measurement> newMeasurements = buildNewMeasurements(station, measurements);
         newMeasurements.forEach(station::addMeasurement);
@@ -32,19 +32,19 @@ public class StationService {
         return stationRepository.save(station);
     }
 
-    private Station findOrCreateStation(OpenAqDto openAqDto) {
-        return stationRepository.findByExternalId(openAqDto.id())
+    private Station findOrCreateStation(LocationDto locationDto) {
+        return stationRepository.findByExternalId(locationDto.id())
                 .orElseGet(() -> Station.builder()
-                        .externalId(openAqDto.id())
-                        .name(openAqDto.name())
-                        .country(openAqDto.country().code())
-                        .city(openAqDto.locality())
-                        .latitude(openAqDto.coordinates().latitude())
-                        .longitude(openAqDto.coordinates().longitude())
+                        .externalId(locationDto.id())
+                        .name(locationDto.name())
+                        .country(locationDto.country().code())
+                        .city(locationDto.locality())
+                        .latitude(locationDto.coordinates().latitude())
+                        .longitude(locationDto.coordinates().longitude())
                         .build());
     }
 
-    private List<Measurement> buildNewMeasurements(Station station, List<MeasurementReadingDto> readings) {
+    private List<Measurement> buildNewMeasurements(Station station, List<MeasurementDto> readings) {
         return readings.stream()
                 .filter(reading -> !measurementRepository.existsByStationIdAndParameterAndMeasuredAt(
                         station.getId(), reading.parameter(), reading.measuredAt()))
