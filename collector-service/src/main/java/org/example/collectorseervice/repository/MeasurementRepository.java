@@ -5,8 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Repository
 public interface MeasurementRepository extends JpaRepository<Measurement, Long> {
-    boolean existsByLocationExternalIdAndParameterAndMeasuredAt(Long locationExternalId, String parameter, LocalDateTime measuredAt);
+    boolean existsByLocationExternalIdAndParameterAndMeasuredAt(Long locationExternalId, String parameter, OffsetDateTime measuredAt);
 }

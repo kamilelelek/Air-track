@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "measurements")
@@ -32,7 +33,7 @@ public class Measurement {
     private String unit;
 
     @Column(name = "measured_at", nullable = false)
-    private LocalDateTime measuredAt;
+    private OffsetDateTime measuredAt;
 
     @Column(name = "fetched_at", nullable = false)
     private LocalDateTime fetchedAt;

@@ -7,5 +7,5 @@ public record LocationDto(long id,
                           String locality,
                           CountryDto country,
                           CoordinatesDto coordinates,
-                          List<SensorDto> sensors  ) {
+                          List<SensorDto> sensors) {
 }

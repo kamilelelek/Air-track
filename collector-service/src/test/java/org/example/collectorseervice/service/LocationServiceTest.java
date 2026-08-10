@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ class LocationServiceTest {
                 List.of()
         );
 
-        reading = new MeasurementDto("pm25", 18.5, "µg/m3", LocalDateTime.now());
+        reading = new MeasurementDto("pm25", 18.5, "µg/m3", OffsetDateTime.now());
     }
 
     @Test

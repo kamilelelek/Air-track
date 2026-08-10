@@ -1,6 +1,6 @@
 package org.example.collectorseervice.dto.latest;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
-public record MeasurementDto(String parameter, double value, String unit, LocalDateTime measuredAt) {
+public record MeasurementDto(String parameter, double value, String unit, OffsetDateTime measuredAt) {
 }

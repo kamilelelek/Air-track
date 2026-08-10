@@ -1,9 +1,16 @@
 services:
   postgres:
     image: 'postgres:latest'
+    container_name: airtrack-postgres
+    restart: unless-stopped
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_DB=airtrack'
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
     ports:
-      - '5432'
+      - '5433:5432'
+    volumes:
+      - airtrack-postgres-data:/var/lib/postgresql
+
+volumes:
+  airtrack-postgres-data:

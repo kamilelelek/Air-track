@@ -1,4 +1,6 @@
 package org.example.collectorseervice.dto.locations;
 
-public record ParameterDto(int id, String name, String units, String displayName) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ParameterDto(@JsonProperty("id") int parameterId, String name, String units, String displayName) {
 }
