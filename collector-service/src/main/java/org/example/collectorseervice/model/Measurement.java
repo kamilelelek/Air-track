@@ -19,9 +19,9 @@ public class Measurement {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "station_id", nullable = false,
-            foreignKey = @ForeignKey(name = "fk_measurements_station"))
-    private Station station;
+    @JoinColumn(name = "location_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_measurements_location"))
+    private Location location;
 
     @Column(nullable = false)
     private String parameter;

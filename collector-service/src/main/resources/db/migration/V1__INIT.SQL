@@ -1,6 +1,5 @@
-CREATE TABLE stations (
-                          id          BIGSERIAL PRIMARY KEY,
-                          external_id BIGINT UNIQUE NOT NULL,
+CREATE TABLE locations (
+                          external_id BIGINT PRIMARY KEY,
                           name        VARCHAR(255),
                           city        VARCHAR(100),
                           country     VARCHAR(50),

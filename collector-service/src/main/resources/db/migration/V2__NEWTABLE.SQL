@@ -1,6 +1,6 @@
 CREATE TABLE measurements (
                               id          BIGSERIAL PRIMARY KEY,
-                              station_id  BIGINT NOT NULL REFERENCES stations(id),
+                              location_id BIGINT NOT NULL REFERENCES locations(external_id),
                               parameter   VARCHAR(20) NOT NULL,  -- np. "pm25", "pm10", "no2"
                               value       DOUBLE PRECISION,
                               unit        VARCHAR(20),

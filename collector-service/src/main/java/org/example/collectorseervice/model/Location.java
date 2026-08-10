@@ -9,18 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "stations")
+@Table(name = "locations")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Station {
+public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "external_id", nullable = false)
     private Long externalId;
 
@@ -43,11 +40,11 @@ public class Station {
     private LocalDateTime createdAt;
 
     @Builder.Default
-    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Measurement> measurements = new ArrayList<>();
 
     public void addMeasurement(Measurement measurement) {
         measurements.add(measurement);
-        measurement.setStation(this);
+        measurement.setLocation(this);
     }
 }
