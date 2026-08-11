@@ -10,7 +10,7 @@ import org.example.collectorseervice.repository.LocationRepository;
 import org.example.collectorseervice.repository.MeasurementRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -49,7 +49,7 @@ public class LocationService {
                         .value(reading.value())
                         .unit(reading.unit())
                         .measuredAt(reading.measuredAt())
-                        .fetchedAt(LocalDateTime.now())
+                        .fetchedAt(OffsetDateTime.now())
                         .build())
                 .toList();
     }

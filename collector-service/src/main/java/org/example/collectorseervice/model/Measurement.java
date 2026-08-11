@@ -3,7 +3,6 @@ package org.example.collectorseervice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -36,5 +35,5 @@ public class Measurement {
     private OffsetDateTime measuredAt;
 
     @Column(name = "fetched_at", nullable = false)
-    private LocalDateTime fetchedAt;
+    private OffsetDateTime fetchedAt;
 }
