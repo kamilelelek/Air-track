@@ -1,3 +1,7 @@
+import { useState, useEffect } from 'react';
+import { Location } from "../types/Location";
+import { getAllDetailsOfLocation } from '../api/Locations';
+
 interface UseLocationDetailsResult {
   locationDetails: Location | null;
   loading: boolean;
@@ -13,7 +17,7 @@ export function useLocationDetails(locationId: string): UseLocationDetailsResult
     async function fetchData() {
       try {
         setLoading(true);
-        const data = await getLocationDetails(locationId);
+        const data = await getAllDetailsOfLocation(parseInt(locationId));
         setLocationDetails(data);
         setError(null);
       } catch (error) {
@@ -26,8 +30,4 @@ export function useLocationDetails(locationId: string): UseLocationDetailsResult
   }, [locationId]);
 
   return { locationDetails, loading, error };
-}
-
-function useEffect(arg0: () => void, arg1: string[]) {
-    throw new Error("Function not implemented.");
 }

@@ -1,3 +1,5 @@
+import { AqiCategory } from "./AqiCategory";
+
 export interface Measurement {
   id: number;
   location: Location;
@@ -6,4 +8,5 @@ export interface Measurement {
   unit: string;
   measuredAt: string;
   fetchedAt: string; 
+  aqiCategory: AqiCategory;
 }

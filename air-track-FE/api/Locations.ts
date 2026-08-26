@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Location } from "../types/Location";
 import { Measurement } from "../types/Measurement";
-import { PaginatedResponse<T> } from "../types/PaginatedResponse";
+import { PaginatedResponse } from "../types/PaginatedResponse.ts";
 
 
 const BASE_URL= 'https://localhost:8085/api/v1'
@@ -15,7 +15,7 @@ export async function getAllDetailsOfLocation(id: number): Promise<Location>{
   const response = await axios.get<Location>(`${BASE_URL}/locations/${id}`);
   return response.data;
 }
-export async function getMeasurementsOfLocation(id:number,
+export async function getAllMeasurementsOfLocation(id:number,
   page:number
 ): Promise<PaginatedResponse<Measurement>> {
  const response= await axios.get<PaginatedResponse<Measurement>>(

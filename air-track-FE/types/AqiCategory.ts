@@ -1,0 +1,1 @@
+export type AqiCategory = 'DOBRY' | 'UMIARKOWANY' |  'ZLY' ;
