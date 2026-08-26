@@ -1,14 +1,30 @@
 import axios from "axios";
-import { Location } from "../types/Location";
-import { Measurement } from "../types/Measurement";
-import { PaginatedResponse } from "../types/PaginatedResponse.ts";
+import type { Location } from "../types/Location";
+import type { Measurement } from "../types/Measurement";
+import type { PaginatedResponse } from "../types/PaginatedResponse.ts";
 
 
-const BASE_URL= 'https://localhost:8085/api/v1'
+const BASE_URL = '/api/v1';
+
+interface LocationApiResponse {
+  station: {
+    id: number;
+    name: string;
+    city: string;
+    latitude: number;
+    longitude: number;
+  };
+  latestMeasurements: Measurement[];
+  aqi: Location['aqiCategory'] | null;
+}
 
 export async function getAllLocation(): Promise<Location[]> {
-  const response = await axios.get<Location[]>(`${BASE_URL}/locations`);
-  return response.data;
+  const response = await axios.get<LocationApiResponse[]>(`${BASE_URL}/locations`);
+  return response.data.map(({ station, latestMeasurements, aqi }) => ({
+    ...station,
+    measurements: latestMeasurements,
+    aqiCategory: aqi ?? 'ZLY',
+  }));
 }
 
 export async function getAllDetailsOfLocation(id: number): Promise<Location>{

@@ -1,4 +1,4 @@
-import { AqiCategory } from "./AqiCategory";
+import type { AqiCategory } from "./AqiCategory";
 
 export interface Measurement {
   id: number;

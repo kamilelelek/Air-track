@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Location } from "../types/Location";
+import type { Location } from "../types/Location";
 import { getAllLocation } from '../api/Locations';
 
 
