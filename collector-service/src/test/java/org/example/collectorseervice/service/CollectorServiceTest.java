@@ -46,13 +46,8 @@ class CollectorServiceTest {
 
     @Test
     void shouldCollectDataAndSaveLocation() {
-        SensorDto sensor = new SensorDto(10L, "Sensor 1", new ParameterDto(1, "pm25", "PM 2.5", "µg/m3"));
-        LocationDto locationDto = new LocationDto(1L, "Stacja Testowa", "Warszawa",
-                new CountryDto(1L, "PL", "Polska"),
-                new CoordinatesDto(52.0, 21.0),
-                List.of(sensor));
-        LatestReadingDto latestReadingDto= new LatestReadingDto(
-                new DateTimeDto(OffsetDateTime.now()),25.4, 10L,1);
+        LocationDto locationDto = locationWithSensor(1L, 10L);
+        LatestReadingDto latestReadingDto = latestReading(10L, 25.4, OffsetDateTime.now());
         when(openAqClient.getLocationResponse()).thenReturn(List.of(locationDto));
         when(openAqClient.getLatestResponse(locationDto)).thenReturn(List.of(latestReadingDto));
         //when
@@ -65,5 +60,34 @@ class CollectorServiceTest {
                 measurements.size() == 1 &&
                         measurements.get(0).parameter().equals("pm25") &&
                         measurements.get(0).value() == 25.4));
+    }
+    @Test
+    void shouldIgnoreReadingOlderThanMaximumAge(){
+
+    }
+
+    private LocationDto locationWithSensor(long locationId, long sensorId) {
+        SensorDto sensor = new SensorDto(
+                sensorId,
+                "Sensor 1",
+                new ParameterDto(1, "pm25", "µg/m3", "PM 2.5")
+        );
+        return new LocationDto(
+                locationId,
+                "Stacja Testowa",
+                "Warszawa",
+                new CountryDto(1L, "PL", "Polska"),
+                new CoordinatesDto(52.0, 21.0),
+                List.of(sensor)
+        );
+    }
+
+    private LatestReadingDto latestReading(long sensorId, double value, OffsetDateTime measuredAt) {
+        return new LatestReadingDto(
+                new DateTimeDto(measuredAt),
+                value,
+                sensorId,
+                1
+        );
     }
 }

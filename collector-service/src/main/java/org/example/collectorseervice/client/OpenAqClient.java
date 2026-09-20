@@ -49,10 +49,7 @@ public class OpenAqClient {
         return response.results();
     }
 
-    /**
-     * Wykonuje request; przy HTTP 429 czeka tyle, ile mówi nagłówek X-Ratelimit-Reset
-     * (albo domyślne 5s, jeśli go brak) i próbuje ponownie, maksymalnie MAX_RETRIES razy.
-     */
+
     private <T> T executeWithRetry(Supplier<T> request) {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {

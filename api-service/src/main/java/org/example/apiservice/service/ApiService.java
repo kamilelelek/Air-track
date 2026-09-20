@@ -30,7 +30,6 @@ public class ApiService {
         this.measurementRepository = measurementRepository;
     }
 
-
     @Transactional
     public List<LocationWithLatestDto> getLocationsWithLastMeasurements() {
         return measurementRepository.findLatestPerLocationAndParameter().stream()
@@ -89,7 +88,7 @@ public class ApiService {
         return new PageDto<>(
                 page.getContent(),
                 page.getNumber(),
-                page.getTotalPages(),
+                page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages()
         );
