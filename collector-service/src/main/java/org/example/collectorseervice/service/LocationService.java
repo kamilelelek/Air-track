@@ -42,7 +42,8 @@ public class LocationService {
 
     private List<Measurement> buildNewMeasurements(Location location, List<MeasurementDto> readings) {
         return readings.stream()
-                .filter(reading -> !measurementRepository.existsByLocationExternalIdAndParameterAndMeasuredAt(
+                .filter(reading -> !measurementRepository
+                        .existsByLocationExternalIdAndParameterAndMeasuredAt(
                         location.getExternalId(), reading.parameter(), reading.measuredAt()))
                 .map(reading -> Measurement.builder()
                         .parameter(reading.parameter())
