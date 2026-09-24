@@ -43,6 +43,8 @@ public class CollectorService {
                 locationService.saveLocationWithMeasurements(locationDto, mapToMeasurement(latestReadingDto, locationDto));
             } catch (ExternalApiException e) {
                 log.error("{}: {}", locationDto.name(), e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            } catch (RuntimeException e) {
+                log.error("{}: nie udało się przetworzyć lokalizacji", locationDto.name(), e);
             }
             throttle();
         }
@@ -58,7 +60,7 @@ public class CollectorService {
 
     private List<MeasurementDto> mapToMeasurement(List<LatestReadingDto> latestReadingDto, LocationDto locationDto) {
         Map<Long, ParameterDto> sensorMap = locationDto.sensors().stream()
-                .collect(Collectors.toMap(SensorDto::id, SensorDto::parameter));
+                .collect(Collectors.toMap(SensorDto::id, SensorDto::parameter, (first, duplicate) -> first));
         OffsetDateTime cutoff = OffsetDateTime.now().minusHours(maxReadingAgeHours);
         return latestReadingDto.stream().filter(latestReadingDto1 -> sensorMap.containsKey(latestReadingDto1.sensorsId()))
                 .filter(latestReadingDto1 -> latestReadingDto1.dateTime().local().isAfter(cutoff))
