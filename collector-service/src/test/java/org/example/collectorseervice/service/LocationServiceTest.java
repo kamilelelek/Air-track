@@ -102,6 +102,26 @@ class LocationServiceTest {
         assertTrue(result.getMeasurements().isEmpty());
     }
 
+    @Test
+    void shouldSaveLocationWithoutMeasurementsWhenReadingsAreEmpty() {
+        //given
+        LocationDto locationDto = locationDto(1L);
+        Location existingLocation = location(1L);
+        List<MeasurementDto> readings = List.of();
+        when(locationRepository.findById(1L)).thenReturn(Optional.empty());
+        when(locationMapper.toEntity(locationDto)).thenReturn(existingLocation);
+        when(locationRepository.save(any(Location.class))).thenAnswer(invocation -> invocation.getArgument(0)); //tego nie rozumiem troche
+        //when
+        Location result = locationService.saveLocationWithMeasurements(locationDto, readings);
+
+        //then
+        verify(locationRepository).save(existingLocation);
+
+        assertSame(existingLocation, result);
+        assertTrue(result.getMeasurements().isEmpty());
+        verifyNoInteractions(measurementRepository);
+    }
+
     private LocationDto locationDto(long locationId) {
         return new LocationDto(
                 locationId,

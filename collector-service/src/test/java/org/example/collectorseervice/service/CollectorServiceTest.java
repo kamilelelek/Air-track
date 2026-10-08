@@ -137,6 +137,15 @@ class CollectorServiceTest {
         verifyNoInteractions(locationService);
     }
 
+    // 1. Parametryczne testy
+    // 2. Jackson
+    // 3. Hardcoded Wojowództwo -> tylko dla konkretnego wojewdództwa
+    /*
+    Dodaj test shouldNeverCallAddMeasurementWhenAllReadingsAreDuplicates.
+
+Użyj spy(location(...)) na obiekcie Location. Skonfiguruj scenariusz gdzie wszystkie pomiary w liście są już zapisane w bazie (measurementRepository.existsByLocationExternalIdAndParameterAndMeasuredAt zwraca true dla każdego). Zweryfikuj używając verify(spyLocation, never()) że metoda addMeasurement() nie została ani razu wywołana — mimo że lista odczytów nie była pusta.
+     */
+
     @Test
     void shouldMapOnlyFreshReadingsFromMultipleSensors() {
         //given
@@ -199,6 +208,7 @@ class CollectorServiceTest {
                         measurements.get(0).parameter().equals("pm25") &&
                         measurements.get(0).value() == 25.4));
     }
+
 
     private LocationDto locationWithSensor(long locationId, long sensorId) {
         SensorDto sensor = new SensorDto(
