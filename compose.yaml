@@ -1,3 +1,5 @@
+name: collector-service
+
 services:
   postgres:
     image: 'postgres:latest'
