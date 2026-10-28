@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class ApiService {
 
     private static final String PM25 = "pm25";
+    private static final String PM10 = "pm10";
 
     LocationRepository locationRepository;
     MeasurementRepository measurementRepository;
@@ -41,17 +42,22 @@ public class ApiService {
 
     private LocationWithLatestDto toStationWithLatest(List<Measurement> latest) {
         Location location = latest.get(0).getLocation();
-        Double pm25 = latest.stream()
-                .filter(measurement -> PM25.equals(measurement.getParameter()))
-                .map(Measurement::getValue)
-                .findFirst()
-                .orElse(null);
+        Double pm25 = latestValue(latest, PM25);
+        Double pm10 = latestValue(latest, PM10);
 
         return new LocationWithLatestDto(
                 toLocationDto(location),
                 latest.stream().map(this::toMeasurementDto).toList(),
                 pm25,
-                pm25 == null ? null : getAirQualityLevel(pm25));
+                getAirQualityLevel(pm25, pm10));
+    }
+
+    private Double latestValue(List<Measurement> latest, String parameter) {
+        return latest.stream()
+                .filter(measurement -> parameter.equals(measurement.getParameter()))
+                .map(Measurement::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
     private LocationDto toLocationDto(Location location) {
@@ -119,6 +125,37 @@ public class ApiService {
             return AirQualityLevel.UMIARKOWANY;
         }
         return AirQualityLevel.ZLY;
+    }
+
+    // Thresholds follow the GIOŚ index bands for PM10, matching the PM2.5 scale above.
+    public AirQualityLevel getPm10AirQualityLevel(double pm10) {
+        if (pm10 < 20) {
+            return AirQualityLevel.DOBRY;
+        } else if (pm10 <= 50) {
+            return AirQualityLevel.UMIARKOWANY;
+        }
+        return AirQualityLevel.ZLY;
+    }
+
+    // The station is rated by whichever particulate reading is worse; null when it measures neither.
+    public AirQualityLevel getAirQualityLevel(Double pm25, Double pm10) {
+        AirQualityLevel fromPm25 = pm25 == null ? null : getAirQualityLevel(pm25);
+        AirQualityLevel fromPm10 = pm10 == null ? null : getPm10AirQualityLevel(pm10);
+        if (fromPm25 == null) {
+            return fromPm10;
+        }
+        if (fromPm10 == null) {
+            return fromPm25;
+        }
+        return severity(fromPm10) > severity(fromPm25) ? fromPm10 : fromPm25;
+    }
+
+    private int severity(AirQualityLevel level) {
+        return switch (level) {
+            case DOBRY -> 0;
+            case UMIARKOWANY -> 1;
+            case ZLY -> 2;
+        };
     }
 
 }

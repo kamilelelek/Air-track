@@ -67,6 +67,45 @@ class ApiServiceTest {
     }
 
     @Test
+    void shouldReturnGoodWhenPm10BelowTwenty() {
+        Assertions.assertEquals(AirQualityLevel.DOBRY, apiService.getPm10AirQualityLevel(19.9));
+    }
+
+    @Test
+    void shouldReturnUmiarkowanyWhenPm10BetweenTwentyAndFifty() {
+        Assertions.assertEquals(AirQualityLevel.UMIARKOWANY, apiService.getPm10AirQualityLevel(20));
+        Assertions.assertEquals(AirQualityLevel.UMIARKOWANY, apiService.getPm10AirQualityLevel(50));
+    }
+
+    @Test
+    void shouldReturnZlyWhenPm10AboveFifty() {
+        Assertions.assertEquals(AirQualityLevel.ZLY, apiService.getPm10AirQualityLevel(50.1));
+    }
+
+    @Test
+    void shouldUseWorseOfPm25AndPm10() {
+        Assertions.assertEquals(AirQualityLevel.ZLY, apiService.getAirQualityLevel(10.0, 60.0));
+        Assertions.assertEquals(AirQualityLevel.UMIARKOWANY, apiService.getAirQualityLevel(20.0, 10.0));
+    }
+
+    @Test
+    void shouldReturnNullWhenNeitherPm25NorPm10Present() {
+        Assertions.assertNull(apiService.getAirQualityLevel(null, null));
+    }
+
+    @Test
+    void shouldSetAqiFromPm10WhenPm25Missing() {
+        Location location = location(1L);
+        Measurement pm10 = measurement(location, "pm10", 31.8);
+        when(measurementRepository.findLatestByLocationExternalId(1L)).thenReturn(List.of(pm10));
+
+        LocationWithLatestDto result = apiService.getLocationDetails(1L);
+
+        Assertions.assertNull(result.pm25());
+        Assertions.assertEquals(AirQualityLevel.UMIARKOWANY, result.aqi());
+    }
+
+    @Test
     void shouldThrowLocationNotFoundWhenNoMeasurementsForId() {
         Long locationId = 1L;
         List<Measurement> latest = new ArrayList<>();
