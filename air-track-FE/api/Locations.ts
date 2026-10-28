@@ -11,19 +11,22 @@ interface LocationApiResponse {
     id: number;
     name: string;
     city: string;
+    country: string;
     latitude: number;
     longitude: number;
   };
   latestMeasurements: Measurement[];
-  aqi: Location['aqiCategory'] | null;
+  pm25: number | null;
+  aqi: Location['aqiCategory'];
 }
 
 export async function getAllLocation(): Promise<Location[]> {
   const response = await axios.get<LocationApiResponse[]>(`${BASE_URL}/locations`);
-  return response.data.map(({ station, latestMeasurements, aqi }) => ({
+  return response.data.map(({ station, latestMeasurements, pm25, aqi }) => ({
     ...station,
     measurements: latestMeasurements,
-    aqiCategory: aqi ?? 'ZLY',
+    pm25,
+    aqiCategory: aqi,
   }));
 }
 
