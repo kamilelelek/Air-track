@@ -28,9 +28,9 @@ public class CollectorService {
 
     @Value("${collector.max-reading-age-hours}")
     private long maxReadingAgeHours;
-
     @Value("${collector.request-delay-ms}")
     private long requestDelayMs;
+
 
     CollectorService(OpenAqClient openAqClient, LocationService locationService) {
         this.openAqClient = openAqClient;
