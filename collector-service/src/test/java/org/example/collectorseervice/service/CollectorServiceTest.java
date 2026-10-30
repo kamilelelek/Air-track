@@ -58,7 +58,7 @@ class CollectorServiceTest {
     }
 
     @Test
-    void shouldIgnoreReadingOlderThanMaximumAge() {
+    void shouldSkipLocationWhenAllReadingsAreTooOld() {
         //given
         OffsetDateTime outOfRange = OffsetDateTime.now().minusHours(49);
         LocationDto locationDto = locationWithSensor(1L, 10L);
@@ -71,11 +71,11 @@ class CollectorServiceTest {
 
         //then
         verify(openAqClient).getLatestResponse(locationDto);
-        verify(locationService).saveLocationWithMeasurements(eq(locationDto), argThat(List::isEmpty));
+        verify(locationService, never()).saveLocationWithMeasurements(any(), any());
     }
 
     @Test
-    void shouldIgnoreReadingFromUnknownSensor() {
+    void shouldSkipLocationWhenReadingIsFromUnknownSensor() {
         //given
         LocationDto locationDto = locationWithSensor(1L, 2L);
         LatestReadingDto latestReadingDto = latestReading(99L, 12.5, OffsetDateTime.now());
@@ -87,7 +87,7 @@ class CollectorServiceTest {
 
         //then
         verify(openAqClient).getLatestResponse(locationDto);
-        verify(locationService).saveLocationWithMeasurements(eq(locationDto), argThat(List::isEmpty));
+        verify(locationService, never()).saveLocationWithMeasurements(any(), any());
     }
 
     @Test
@@ -198,6 +198,33 @@ class CollectorServiceTest {
                 measurements.size() == 1 &&
                         measurements.get(0).parameter().equals("pm25") &&
                         measurements.get(0).value() == 25.4));
+    }
+
+    @Test
+    void shouldIgnoreReadingsOtherThanPm() {
+        //given
+        SensorDto pm25Sensor = new SensorDto(10L, "Sensor PM2.5", new ParameterDto(2, "pm25", "µg/m3", "PM 2.5"));
+        SensorDto no2Sensor = new SensorDto(20L, "Sensor NO2", new ParameterDto(7, "no2", "ppm", "NO2"));
+        LocationDto locationDto = new LocationDto(
+                1L,
+                "Stacja Testowa",
+                "Warszawa",
+                new CountryDto(1L, "PL", "Polska"),
+                new CoordinatesDto(52.0, 21.0),
+                List.of(pm25Sensor, no2Sensor)
+        );
+        when(openAqClient.getLocationResponse()).thenReturn(List.of(locationDto));
+        when(openAqClient.getLatestResponse(locationDto)).thenReturn(List.of(
+                latestReading(10L, 25.4, OffsetDateTime.now()),
+                latestReading(20L, 0.02, OffsetDateTime.now())));
+
+        //when
+        collectorService.collectData();
+
+        //then
+        verify(locationService).saveLocationWithMeasurements(eq(locationDto), argThat(measurements ->
+                measurements.size() == 1 &&
+                        measurements.get(0).parameter().equals("pm25")));
     }
 
     private LocationDto locationWithSensor(long locationId, long sensorId) {
