@@ -3,6 +3,7 @@ package org.example.collectorseervice.client;
 import lombok.extern.slf4j.Slf4j;
 import org.example.collectorseervice.dto.latest.LatestReadingDto;
 import org.example.collectorseervice.dto.locations.LocationDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -19,6 +20,9 @@ public class OpenAqClient {
 
     OpenAqConfig openAqConfig;
 
+    @Value("${collector.locations-limit}")
+    private int locationsLimit;
+
     OpenAqClient(OpenAqConfig openAqConfig) {
         this.openAqConfig = openAqConfig;
     }
@@ -26,7 +30,7 @@ public class OpenAqClient {
     public List<LocationDto> getLocationResponse() {
         LocationsResponse response = executeWithRetry(() ->
                 openAqConfig.openAqWebClient().get()
-                        .uri("/locations?iso=PL")
+                        .uri("/locations?iso=PL&parameters_id=1,2&limit=" + locationsLimit)
                         .retrieve()
                         .body(LocationsResponse.class));
 

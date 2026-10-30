@@ -15,11 +15,14 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class CollectorService {
+    private static final Set<String> TRACKED_PARAMETERS = Set.of("pm10", "pm25");
+
     OpenAqClient openAqClient;
     LocationService locationService;
 
@@ -40,7 +43,12 @@ public class CollectorService {
         for (LocationDto locationDto : locationDtoList) {
             try {
                 List<LatestReadingDto> latestReadingDto = openAqClient.getLatestResponse(locationDto);
-                locationService.saveLocationWithMeasurements(locationDto, mapToMeasurement(latestReadingDto, locationDto));
+                List<MeasurementDto> measurements = mapToMeasurement(latestReadingDto, locationDto);
+                if (measurements.isEmpty()) {
+                    log.info("{}: brak aktualnych pomiarów PM, pomijam", locationDto.name());
+                } else {
+                    locationService.saveLocationWithMeasurements(locationDto, measurements);
+                }
             } catch (ExternalApiException e) {
                 log.error("{}: {}", locationDto.name(), e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             } catch (RuntimeException e) {
@@ -63,6 +71,7 @@ public class CollectorService {
                 .collect(Collectors.toMap(SensorDto::id, SensorDto::parameter, (first, duplicate) -> first));
         OffsetDateTime cutoff = OffsetDateTime.now().minusHours(maxReadingAgeHours);
         return latestReadingDto.stream().filter(latestReadingDto1 -> sensorMap.containsKey(latestReadingDto1.sensorsId()))
+                .filter(latestReadingDto1 -> TRACKED_PARAMETERS.contains(sensorMap.get(latestReadingDto1.sensorsId()).name()))
                 .filter(latestReadingDto1 -> latestReadingDto1.dateTime().local().isAfter(cutoff))
                 .map(latestReadingDto1 ->
                         new MeasurementDto(sensorMap.
