@@ -103,6 +103,30 @@ class LocationServiceTest {
     }
 
     @Test
+    void shouldNeverCallAddMeasurementWhenAllReadingsAreDuplicates() {
+        //given
+        LocationDto locationDto = locationDto(1L);
+        Location spyLocation = spy(location(1L));
+        List<MeasurementDto> readings = List.of(
+                reading("pm25", 18.5, OffsetDateTime.now()),
+                reading("pm10", 32.0, OffsetDateTime.now().minusHours(1)),
+                reading("no2", 12.3, OffsetDateTime.now().minusHours(2)));
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(spyLocation));
+        when(measurementRepository.existsByLocationExternalIdAndParameterAndMeasuredAt(
+                eq(1L), anyString(), any(OffsetDateTime.class))).thenReturn(true);
+        when(locationRepository.save(any(Location.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //when
+        locationService.saveLocationWithMeasurements(locationDto, readings);
+
+        //then
+        verify(measurementRepository, times(readings.size()))
+                .existsByLocationExternalIdAndParameterAndMeasuredAt(eq(1L), anyString(), any(OffsetDateTime.class));
+        verify(spyLocation, never()).addMeasurement(any());
+        verify(locationRepository).save(spyLocation);
+    }
+
+    @Test
     void shouldSaveLocationWithoutMeasurementsWhenReadingsAreEmpty() {
         //given
         LocationDto locationDto = locationDto(1L);
